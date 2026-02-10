@@ -24,7 +24,7 @@ A command-line tool that generates [hexagonal architecture](https://alistair.coc
 
 ```bash
 curl -L -o spring-hex-cli-1.0.0.jar \
-  https://github.com/spring-hex/spring-hex/releases/download/v1.0.0/spring-hex-cli-1.0.0.jar
+  https://github.com/Spring-hex/Spring-hex.github.io/releases/download/v1.0.0/spring-hex-cli-1.0.0.jar
 ```
 
 ### Set up an alias
@@ -38,8 +38,8 @@ alias spring-hex='java -jar /path/to/spring-hex-cli-1.0.0.jar'
 ### Build from source
 
 ```bash
-git clone https://github.com/spring-hex/spring-hex.git
-cd spring-hex
+git clone https://github.com/Spring-hex/Spring-hex.github.io.git
+cd Spring-hex.github.io
 mvn clean package
 java -jar target/spring-hex-cli-1.0.0.jar --version
 ```

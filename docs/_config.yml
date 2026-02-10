@@ -17,11 +17,11 @@ back_to_top_text: "Back to top"
 
 nav_external_links:
   - title: GitHub
-    url: https://github.com/spring-hex/spring-hex
+    url: https://github.com/Spring-hex/Spring-hex.github.io
 
 aux_links:
   "GitHub":
-    - "https://github.com/spring-hex/spring-hex"
+    - "https://github.com/Spring-hex/Spring-hex.github.io"
 
 footer_content: "Spring Hex CLI &mdash; Hexagonal Architecture scaffolding for Spring Boot"
 
