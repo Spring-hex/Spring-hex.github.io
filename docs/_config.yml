@@ -1,6 +1,6 @@
 title: Spring Hex CLI
 description: Code generation tool for hexagonal architecture in Spring Boot projects
-remote_theme: just-the-docs/just-the-docs
+theme: just-the-docs
 
 url: ""
 baseurl: "/spring-hex"
@@ -26,7 +26,7 @@ aux_links:
 footer_content: "Spring Hex CLI &mdash; Hexagonal Architecture scaffolding for Spring Boot"
 
 plugins:
-  - jekyll-remote-theme
+  - jekyll-seo-tag
 
 exclude:
   - Gemfile
