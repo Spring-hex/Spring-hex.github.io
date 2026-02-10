@@ -28,6 +28,12 @@ footer_content: "Spring Hex CLI &mdash; Hexagonal Architecture scaffolding for S
 plugins:
   - jekyll-seo-tag
 
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
 exclude:
   - Gemfile
   - Gemfile.lock
