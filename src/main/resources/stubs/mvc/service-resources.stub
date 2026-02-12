@@ -1,0 +1,50 @@
+package {{PACKAGE}};
+
+import {{PACKAGE_CRUD_ENTITY}}.{{ENTITY_NAME}}Entity;
+import {{PACKAGE_CRUD_MAPPER}}.{{ENTITY_NAME}}Mapper;
+import {{PACKAGE_CRUD_MODEL}}.{{ENTITY_NAME}};
+import {{PACKAGE_CRUD_REPOSITORY}}.{{ENTITY_NAME}}Repository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class {{ENTITY_NAME}}Service {
+
+    private final {{ENTITY_NAME}}Repository repository;
+    private final {{ENTITY_NAME}}Mapper mapper;
+
+    public List<{{ENTITY_NAME}}> findAll() {
+        return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    public Optional<{{ENTITY_NAME}}> findById(Long id) {
+        return repository.findById(id)
+                .map(mapper::toDomain);
+    }
+
+    public {{ENTITY_NAME}} create({{ENTITY_NAME}} {{ENTITY_NAME_LOWER}}) {
+        {{ENTITY_NAME}}Entity entity = mapper.toEntity({{ENTITY_NAME_LOWER}});
+        return mapper.toDomain(repository.save(entity));
+    }
+
+    public Optional<{{ENTITY_NAME}}> update(Long id, {{ENTITY_NAME}} {{ENTITY_NAME_LOWER}}) {
+        return repository.findById(id)
+                .map(existing -> {
+                    {{ENTITY_NAME}}Entity entity = mapper.toEntity({{ENTITY_NAME_LOWER}});
+                    entity.setId(id);
+                    return mapper.toDomain(repository.save(entity));
+                });
+    }
+
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
+}

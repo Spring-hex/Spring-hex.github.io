@@ -35,6 +35,9 @@ public class MakeCrudCommand implements Callable<Integer> {
     @Option(names = {"--no-service"}, description = "Skip service layer generation", defaultValue = "false")
     private boolean noService;
 
+    @Option(names = {"--resources"}, description = "Generate CRUD endpoints and service methods ready for development", defaultValue = "false")
+    private boolean resources;
+
     @Mixin
     private GeneratorMixin mixin;
 
@@ -92,14 +95,16 @@ public class MakeCrudCommand implements Callable<Integer> {
 
             // 5. Service
             if (!noService) {
+                String serviceStub = resources ? "mvc/service-resources" : "mvc/service";
                 String servicePackage = pathResolver.resolveCrud("service", lower);
-                generateFile("mvc/service", capitalized + "Service", servicePackage, replacements);
+                generateFile(serviceStub, capitalized + "Service", servicePackage, replacements);
                 fileCount++;
             }
 
             // 6. Controller
+            String controllerStub = resources ? "mvc/controller-resources" : "mvc/controller";
             String controllerPackage = pathResolver.resolveCrud("controller", lower);
-            generateFile("mvc/controller", capitalized + "Controller", controllerPackage, replacements);
+            generateFile(controllerStub, capitalized + "Controller", controllerPackage, replacements);
             fileCount++;
 
             System.out.println("\nCRUD resource generated successfully!");
