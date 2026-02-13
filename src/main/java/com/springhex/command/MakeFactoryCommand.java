@@ -29,7 +29,7 @@ public class MakeFactoryCommand implements Callable<Integer> {
     @Parameters(index = "0", description = "Entity name (e.g., User, Product)")
     private String entityName;
 
-    @Option(names = {"-a", "--aggregate"}, description = "Aggregate name (e.g., order)", required = true)
+    @Option(names = {"-a", "--aggregate"}, description = "Aggregate name (defaults to entity name lowercase)")
     private String aggregate;
 
     @Mixin
@@ -53,7 +53,7 @@ public class MakeFactoryCommand implements Callable<Integer> {
             HexPathResolver pathResolver = config.getPathResolver();
 
             String capitalized = StringUtils.capitalize(entityName);
-            String aggregateLower = aggregate.toLowerCase();
+            String aggregateLower = (aggregate != null ? aggregate : entityName).toLowerCase();
 
             String factoryPackage = pathResolver.resolve("factory", aggregateLower);
 

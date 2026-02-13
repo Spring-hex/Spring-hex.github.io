@@ -30,7 +30,7 @@ public class MakeSeederCommand implements Callable<Integer> {
     @Parameters(index = "0", description = "Seeder name (e.g., UserSeeder)")
     private String seederName;
 
-    @Option(names = {"-a", "--aggregate"}, description = "Aggregate name (e.g., order)", required = true)
+    @Option(names = {"-a", "--aggregate"}, description = "Aggregate name (defaults to entity name lowercase)")
     private String aggregate;
 
     @Option(names = {"--entity"}, description = "Entity name for factory/repository imports (e.g., User)", required = true)
@@ -58,7 +58,7 @@ public class MakeSeederCommand implements Callable<Integer> {
 
             String className = normalizeSeederName(seederName);
             String entityCapitalized = StringUtils.capitalize(entityName);
-            String aggregateLower = aggregate.toLowerCase();
+            String aggregateLower = (aggregate != null ? aggregate : entityName).toLowerCase();
 
             String seederPackage = pathResolver.resolveStatic("seeder");
             String factoryPackage = pathResolver.resolve("factory", aggregateLower);
