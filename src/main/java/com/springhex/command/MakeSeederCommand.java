@@ -80,6 +80,17 @@ public class MakeSeederCommand implements Callable<Integer> {
             fileGenerator.generate(outputPath, content);
             System.out.println("Created: " + outputPath);
 
+            // Auto-generate Seeder interface if it doesn't exist
+            Path seederInterfacePath = packageResolver.resolveOutputPath(mixin.getOutputDir(), "Seeder", seederPackage);
+            if (!Files.exists(seederInterfacePath)) {
+                Map<String, String> interfaceReplacements = new HashMap<>();
+                interfaceReplacements.put("{{PACKAGE}}", seederPackage);
+
+                String interfaceContent = stubProcessor.process("data/seeder-interface", interfaceReplacements);
+                fileGenerator.generate(seederInterfacePath, interfaceContent);
+                System.out.println("Created: " + seederInterfacePath);
+            }
+
             // Auto-generate SeedRunner if it doesn't exist
             Path seedRunnerPath = packageResolver.resolveOutputPath(mixin.getOutputDir(), "SeedRunner", seederPackage);
             if (!Files.exists(seedRunnerPath)) {

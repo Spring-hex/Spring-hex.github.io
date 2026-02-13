@@ -618,27 +618,37 @@ spring-hex make:seeder OrderItemSeeder --entity OrderItem -a order
 ```
 
 **Generated Files:**
-- Seeder class with a `seed()` method (empty body for you to define)
+- Seeder class implementing `Seeder` interface with `seed()` and `dependsOn()` methods
+- `Seeder` interface (auto-generated once, on first seeder creation)
 - `SeedRunner` infrastructure component (auto-generated once, on first seeder creation)
 
-**Usage in Code:**
+**Dependency Ordering:**
+
+Seeders support topological dependency ordering. If `BookSeeder` depends on `AuthorSeeder` (because books reference authors), declare it via `dependsOn()`:
+
 ```java
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UserSeeder {
+public class BookSeeder implements Seeder {
 
-    private final UserRepository repository;
+    private final BookRepository repository;
 
+    @Override
+    public List<Class<? extends Seeder>> dependsOn() {
+        return List.of(AuthorSeeder.class);
+    }
+
+    @Override
     public void seed() {
-        // Define your seed data here
-        repository.saveAll(UserFactory.create(50));
-
-        // Or create specific entries
-        repository.save(UserFactory.create());
+        repository.saveAll(BookFactory.create(20));
     }
 }
 ```
+
+When running `db:seed --all`, the `SeedRunner` performs a topological sort — seeders with no dependencies run first, then their dependents, and so on. Circular dependencies are detected and reported as errors.
+
+When running a single seeder (e.g., `db:seed BookSeeder`), its dependencies are automatically resolved and executed first.
 
 ---
 
@@ -669,7 +679,8 @@ spring-hex db:seed --all
 **Behavior:**
 - Detects Maven or Gradle and runs the Spring Boot application with `--seed=<target>` argument
 - The auto-generated `SeedRunner` picks up the argument and invokes the matching seeder's `seed()` method
-- `--all` discovers and runs every bean that has a `seed()` method
+- `--all` discovers all `Seeder` beans, performs a **topological sort** based on `dependsOn()` declarations, and runs them in dependency order
+- Running a single seeder also resolves and executes its dependencies first
 
 ---
 
