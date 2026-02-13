@@ -45,6 +45,13 @@ public class MakeFactoryCommand implements Callable<Integer> {
         this.packageResolver = new PackageResolver();
     }
 
+    private String stripEntitySuffix(String name) {
+        if (name.endsWith("Entity")) {
+            return name.substring(0, name.length() - "Entity".length());
+        }
+        return name;
+    }
+
     @Override
     public Integer call() {
         try {
@@ -53,7 +60,7 @@ public class MakeFactoryCommand implements Callable<Integer> {
             HexPathResolver pathResolver = config.getPathResolver();
 
             String capitalized = StringUtils.capitalize(entityName);
-            String aggregateLower = (aggregate != null ? aggregate : entityName).toLowerCase();
+            String aggregateLower = (aggregate != null ? aggregate : stripEntitySuffix(entityName)).toLowerCase();
 
             String factoryPackage = pathResolver.resolve("factory", aggregateLower);
 

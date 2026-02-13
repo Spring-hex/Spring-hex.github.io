@@ -58,7 +58,7 @@ public class MakeSeederCommand implements Callable<Integer> {
 
             String className = normalizeSeederName(seederName);
             String entityCapitalized = StringUtils.capitalize(entityName);
-            String aggregateLower = (aggregate != null ? aggregate : entityName).toLowerCase();
+            String aggregateLower = (aggregate != null ? aggregate : stripEntitySuffix(entityName)).toLowerCase();
 
             String seederPackage = pathResolver.resolveStatic("seeder");
             String factoryPackage = pathResolver.resolve("factory", aggregateLower);
@@ -111,6 +111,13 @@ public class MakeSeederCommand implements Callable<Integer> {
             System.err.println("Error generating seeder: " + e.getMessage());
             return 1;
         }
+    }
+
+    private String stripEntitySuffix(String name) {
+        if (name.endsWith("Entity")) {
+            return name.substring(0, name.length() - "Entity".length());
+        }
+        return name;
     }
 
     private String normalizeSeederName(String name) {
