@@ -569,22 +569,26 @@ spring-hex make:factory OrderItem -a order
 ```
 
 **Generated Files:**
-- Factory class with static `create()` and `create(int count)` methods
+- Factory `@Component` with `make()` (in-memory) and `create()` (persisted) methods
+- JPA repository interface (auto-generated if one doesn't already exist)
 - Uses [Datafaker](https://www.datafaker.net/) for realistic fake data
 
 **Usage in Code:**
 ```java
-// Single entity
-User user = UserFactory.create();
+// Inject the factory (it's a Spring component)
+@Autowired
+private UserFactory userFactory;
 
-// Multiple entities
-List<User> users = UserFactory.create(50);
+// create() saves to database and returns the persisted entity
+User user = userFactory.create();
+List<User> users = userFactory.create(50);
 
-// Nested factories for aggregate composition
-Order order = Order.builder()
-        .customer(CustomerFactory.create())
-        .items(OrderItemFactory.create(3))
-        .build();
+// make() creates in memory only (useful for unit tests)
+User transient = userFactory.make();
+
+// Nested factories: create() persists dependencies automatically
+// In BookFactory.make():
+//   .author(authorFactory.create())   // author saved first
 ```
 
 **Note:** Add `net.datafaker:datafaker` to your project dependencies to use factories.

@@ -14,6 +14,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,18 +64,33 @@ public class MakeFactoryCommand implements Callable<Integer> {
             String aggregateLower = (aggregate != null ? aggregate : stripEntitySuffix(entityName)).toLowerCase();
 
             String factoryPackage = pathResolver.resolve("factory", aggregateLower);
+            String repositoryPackage = pathResolver.resolve("persistence", aggregateLower);
 
             Map<String, String> replacements = new HashMap<>();
             replacements.put("{{PACKAGE}}", factoryPackage);
             replacements.put("{{BASE_PACKAGE}}", resolvedPackage);
             replacements.put("{{ENTITY_NAME}}", capitalized);
             replacements.put("{{AGGREGATE}}", aggregateLower);
+            replacements.put("{{PACKAGE_REPOSITORY}}", repositoryPackage);
             pathResolver.populatePackagePlaceholders(aggregateLower, replacements);
 
+            // Generate factory class
             String content = stubProcessor.process("data/factory", replacements);
             Path outputPath = packageResolver.resolveOutputPath(mixin.getOutputDir(), capitalized + "Factory", factoryPackage);
             fileGenerator.generate(outputPath, content);
             System.out.println("Created: " + outputPath);
+
+            // Auto-generate repository if it doesn't exist
+            Path repoPath = packageResolver.resolveOutputPath(mixin.getOutputDir(), capitalized + "Repository", repositoryPackage);
+            if (!Files.exists(repoPath)) {
+                Map<String, String> repoReplacements = new HashMap<>();
+                repoReplacements.put("{{PACKAGE}}", repositoryPackage);
+                repoReplacements.put("{{ENTITY_NAME}}", capitalized);
+
+                String repoContent = stubProcessor.process("data/repository", repoReplacements);
+                fileGenerator.generate(repoPath, repoContent);
+                System.out.println("Created: " + repoPath);
+            }
 
             System.out.println("\nFactory generated successfully!");
             return 0;

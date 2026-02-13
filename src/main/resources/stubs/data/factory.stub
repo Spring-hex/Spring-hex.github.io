@@ -1,31 +1,45 @@
 package {{PACKAGE}};
 
 import {{PACKAGE_MODEL}}.{{ENTITY_NAME}};
+import {{PACKAGE_REPOSITORY}}.{{ENTITY_NAME}}Repository;
 import net.datafaker.Faker;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@RequiredArgsConstructor
 public class {{ENTITY_NAME}}Factory {
 
+    private final {{ENTITY_NAME}}Repository repository;
     private static final Faker faker = new Faker();
 
-    public static {{ENTITY_NAME}} create() {
+    public {{ENTITY_NAME}} make() {
         return {{ENTITY_NAME}}.builder()
                 // TODO: Set fields using faker, e.g.:
                 // .name(faker.name().fullName())
                 // .email(faker.internet().emailAddress())
                 //
-                // For nested entities, use their factory:
-                // .address(AddressFactory.create())
+                // For nested entities, use their factory's create() to persist first:
+                // .author(authorFactory.create())
                 .build();
     }
 
-    public static List<{{ENTITY_NAME}}> create(int count) {
+    public List<{{ENTITY_NAME}}> make(int count) {
         List<{{ENTITY_NAME}}> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            list.add(create());
+            list.add(make());
         }
         return list;
+    }
+
+    public {{ENTITY_NAME}} create() {
+        return repository.save(make());
+    }
+
+    public List<{{ENTITY_NAME}}> create(int count) {
+        return repository.saveAll(make(count));
     }
 }

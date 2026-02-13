@@ -22,13 +22,13 @@ The data seeding system has three parts:
 
 | Component | Purpose |
 |:----------|:--------|
-| **Factory** | Creates fake entity instances using Datafaker |
-| **Seeder** | Populates the database using factories and repositories |
+| **Factory** | Creates and persists fake entity instances using Datafaker |
+| **Seeder** | Orchestrates factories to populate the database |
 | **SeedRunner** | Dispatches `db:seed` commands to the right seeders |
 
 ## Factories
 
-Factories generate fake entity instances for testing and seeding.
+Factories generate fake entity instances. Like Laravel, `create()` persists to the database and `make()` builds in memory only.
 
 ### Generating a Factory
 
@@ -37,48 +37,71 @@ spring-hex make:factory User
 spring-hex make:factory OrderItem -a order
 ```
 
-This creates a factory class with static `create()` methods:
+This creates a factory `@Component` with a repository injection. If the repository doesn't exist yet, it's auto-generated.
 
 ```java
+@Component
+@RequiredArgsConstructor
 public class UserFactory {
 
+    private final UserRepository repository;
     private static final Faker faker = new Faker();
 
-    public static User create() {
+    public User make() {
         return User.builder()
                 .name(faker.name().fullName())
                 .email(faker.internet().emailAddress())
                 .build();
     }
 
-    public static List<User> create(int count) {
-        List<User> list = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            list.add(create());
-        }
-        return list;
+    public List<User> make(int count) { ... }
+
+    public User create() {
+        return repository.save(make());
+    }
+
+    public List<User> create(int count) {
+        return repository.saveAll(make(count));
     }
 }
 ```
+
+### create() vs make()
+
+| Method | Behavior | Use Case |
+|:-------|:---------|:---------|
+| `create()` | Builds and **saves** to database | Seeders, integration tests |
+| `create(n)` | Builds and saves `n` entities | Bulk seeding |
+| `make()` | Builds in **memory only** | Unit tests, assertions |
+| `make(n)` | Builds `n` entities in memory | Batch unit tests |
 
 ### Nested Factories
 
-For aggregate roots that contain child entities, call one factory from another:
+For entities with relationships (e.g., Book belongs to Author), call the dependency factory's `create()` to persist it first:
 
 ```java
-public class OrderFactory {
+@Component
+@RequiredArgsConstructor
+public class BookFactory {
 
+    private final BookRepository repository;
+    private final AuthorFactory authorFactory;
     private static final Faker faker = new Faker();
 
-    public static Order create() {
-        return Order.builder()
-                .customer(CustomerFactory.create())
-                .items(OrderItemFactory.create(3))
-                .total(faker.number().randomDouble(2, 10, 500))
+    public Book make() {
+        return Book.builder()
+                .title(faker.book().title())
+                .author(authorFactory.create())  // persisted before Book
                 .build();
+    }
+
+    public Book create() {
+        return repository.save(make());
     }
 }
 ```
+
+Because `authorFactory.create()` saves the Author first, Hibernate won't throw a `TransientPropertyValueException`.
 
 ### Datafaker Dependency
 
@@ -89,17 +112,14 @@ Add Datafaker to your project:
     <groupId>net.datafaker</groupId>
     <artifactId>datafaker</artifactId>
     <version>2.4.2</version>
-    <scope>test</scope>
 </dependency>
 ```
-
-If you use factories in seeders (not just tests), use `<scope>runtime</scope>` or omit the scope.
 
 ---
 
 ## Seeders
 
-Seeders populate the database by combining factories with repositories.
+Seeders orchestrate factories to populate the database.
 
 ### Generating a Seeder
 
@@ -114,7 +134,7 @@ The first `make:seeder` call also auto-generates:
 
 ### Implementing a Seeder
 
-Fill in the `seed()` method with your data logic:
+Fill in the `seed()` method — the factory handles persistence:
 
 ```java
 @Component
@@ -122,13 +142,13 @@ Fill in the `seed()` method with your data logic:
 @Slf4j
 public class UserSeeder implements Seeder {
 
-    private final UserRepository repository;
+    private final UserFactory factory;
 
     @Override
     public void seed() {
         log.info("UserSeeder: seeding...");
 
-        repository.saveAll(UserFactory.create(50));
+        factory.create(50);  // creates and saves 50 users
 
         log.info("UserSeeder: done");
     }
@@ -152,8 +172,6 @@ private static final List<Class<? extends Seeder>> SEEDERS = List.of(
         BookSeeder.class         // depends on Author and Publisher — runs last
 );
 ```
-
-This prevents Hibernate `TransientPropertyValueException` errors that occur when persisting an entity that references an unsaved entity.
 
 ---
 
@@ -194,7 +212,7 @@ The `SeedRunner` (a `CommandLineRunner`) picks up the `--seed=` argument and inv
 ## Typical Workflow
 
 ```bash
-# 1. Generate factories for your entities
+# 1. Generate factories (repos auto-created if missing)
 spring-hex make:factory Author
 spring-hex make:factory Book
 
@@ -202,8 +220,8 @@ spring-hex make:factory Book
 spring-hex make:seeder AuthorSeeder --entity Author
 spring-hex make:seeder BookSeeder --entity Book
 
-# 3. Implement factory create() methods with Datafaker
-# 4. Implement seeder seed() methods
+# 3. Implement factory make() methods with Datafaker
+# 4. Implement seeder seed() methods (call factory.create())
 # 5. Add seeders to SeedRunner.SEEDERS in dependency order
 
 # 6. Run

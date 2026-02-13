@@ -1232,40 +1232,49 @@ Stubs for data factories, seeders, and seeding infrastructure.
 Data
 {: .label .label-purple }
 
-Generates a data factory class using Datafaker for creating fake entity instances.
+Generates a factory `@Component` with `make()` (in-memory) and `create()` (persisted) methods using Datafaker.
 
 **Used by:** `make:factory`
 
 **Key Placeholders:**
 - `{{ENTITY_NAME}}` - Entity class name
 - `{{PACKAGE_MODEL}}` - Resolved model package for entity import
+- `{{PACKAGE_REPOSITORY}}` - Resolved persistence package for repository import
 
 **Example Output:**
 ```java
 package com.app.infrastructure.factory.user;
 
 import com.app.domain.user.model.User;
+import com.app.infrastructure.persistence.user.UserRepository;
 import net.datafaker.Faker;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@RequiredArgsConstructor
 public class UserFactory {
 
+    private final UserRepository repository;
     private static final Faker faker = new Faker();
 
-    public static User create() {
+    public User make() {
         return User.builder()
                 // TODO: Set fields using faker
                 .build();
     }
 
-    public static List<User> create(int count) {
-        List<User> list = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            list.add(create());
-        }
-        return list;
+    public List<User> make(int count) { ... }
+
+    public User create() {
+        return repository.save(make());
+    }
+
+    public List<User> create(int count) {
+        return repository.saveAll(make(count));
     }
 }
 ```
@@ -1283,16 +1292,14 @@ Generates a database seeder component that implements the `Seeder` interface.
 
 **Key Placeholders:**
 - `{{SEEDER_NAME}}` - Seeder class name
-- `{{ENTITY_NAME}}` - Entity class name for repository/factory imports
+- `{{ENTITY_NAME}}` - Entity class name for factory import
 - `{{PACKAGE_FACTORY}}` - Resolved factory package
-- `{{PACKAGE_REPOSITORY}}` - Resolved persistence/repository package
 
 **Example Output:**
 ```java
 package com.app.infrastructure.seeder;
 
 import com.app.infrastructure.factory.user.UserFactory;
-import com.app.infrastructure.persistence.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -1302,12 +1309,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserSeeder implements Seeder {
 
-    private final UserRepository repository;
+    private final UserFactory factory;
 
     @Override
     public void seed() {
         log.info("UserSeeder: seeding...");
-        // Define your seed data here
+        // factory.create(50) saves to database
         log.info("UserSeeder: done");
     }
 }
