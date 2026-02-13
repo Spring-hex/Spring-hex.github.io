@@ -1,0 +1,31 @@
+package {{PACKAGE}};
+
+import {{PACKAGE_MODEL}}.{{ENTITY_NAME}};
+import net.datafaker.Faker;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class {{ENTITY_NAME}}Factory {
+
+    private static final Faker faker = new Faker();
+
+    public static {{ENTITY_NAME}} create() {
+        return {{ENTITY_NAME}}.builder()
+                // TODO: Set fields using faker, e.g.:
+                // .name(faker.name().fullName())
+                // .email(faker.internet().emailAddress())
+                //
+                // For nested entities, use their factory:
+                // .address(AddressFactory.create())
+                .build();
+    }
+
+    public static List<{{ENTITY_NAME}}> create(int count) {
+        List<{{ENTITY_NAME}}> list = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            list.add(create());
+        }
+        return list;
+    }
+}

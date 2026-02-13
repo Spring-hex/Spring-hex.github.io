@@ -21,7 +21,9 @@ public class HexPathResolver {
             Map.entry("mediator", "infrastructure.mediator"),
             Map.entry("cqrs", "domain.cqrs"),
             Map.entry("domain-root", "domain"),
-            Map.entry("service", "domain.{aggregate}.service")
+            Map.entry("service", "domain.{aggregate}.service"),
+            Map.entry("factory", "infrastructure.factory.{aggregate}"),
+            Map.entry("seeder", "infrastructure.seeder")
     );
 
     private static final Map<String, String> CRUD_DEFAULTS = Map.of(

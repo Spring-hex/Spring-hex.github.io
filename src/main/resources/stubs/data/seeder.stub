@@ -1,0 +1,28 @@
+package {{PACKAGE}};
+
+import {{PACKAGE_FACTORY}}.{{ENTITY_NAME}}Factory;
+import {{PACKAGE_REPOSITORY}}.{{ENTITY_NAME}}Repository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class {{SEEDER_NAME}} {
+
+    private final {{ENTITY_NAME}}Repository repository;
+
+    public void seed() {
+        log.info("{{SEEDER_NAME}}: seeding...");
+
+        // TODO: Define your seed data here. Examples:
+        //
+        // repository.saveAll({{ENTITY_NAME}}Factory.create(50));
+        //
+        // repository.save({{ENTITY_NAME}}Factory.create());
+        //
+
+        log.info("{{SEEDER_NAME}}: done");
+    }
+}

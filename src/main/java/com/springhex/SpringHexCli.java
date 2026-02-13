@@ -28,6 +28,8 @@ import picocli.CommandLine.Command;
         MakePortCommand.class,
         MakeAdapterCommand.class,
         MakeCrudCommand.class,
+        MakeFactoryCommand.class,
+        MakeSeederCommand.class,
         MakeTestCommand.class,
         RunTestCommand.class,
         MakeMigrationCommand.class,
@@ -36,7 +38,8 @@ import picocli.CommandLine.Command;
         MigrateStatusCommand.class,
         MigrateValidateCommand.class,
         MigrateRepairCommand.class,
-        MigrateFreshCommand.class
+        MigrateFreshCommand.class,
+        DbSeedCommand.class
     }
 )
 public class SpringHexCli implements Runnable {

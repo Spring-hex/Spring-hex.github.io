@@ -52,6 +52,8 @@ This generates a complete module with:
 
 **Simple CRUD Too** --- `make:crud` generates a full MVC stack when you don't need hexagonal complexity.
 
+**Data Seeding** --- Generate factories with Datafaker and seeders for populating dev/test databases.
+
 ## What It Generates
 
 | Layer | Components |
@@ -59,6 +61,7 @@ This generates a complete module with:
 | **Domain** | Models, Aggregates, Value Objects, Commands, Queries, Events, Ports |
 | **Infrastructure** | Controllers, Repository Adapters, Event Listeners, Mappers, JPA Entities |
 | **Mediator** | CommandBus, QueryBus, Handler interfaces, Configuration |
+| **Data Seeding** | Factories (Datafaker), Seeders, SeedRunner |
 | **Migration** | Flyway SQL, Liquibase XML/YAML/SQL changesets |
 | **Tests** | Feature tests (SpringBootTest), Unit tests (Mockito) |
 

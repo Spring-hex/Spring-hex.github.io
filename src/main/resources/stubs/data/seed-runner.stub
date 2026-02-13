@@ -1,0 +1,46 @@
+package {{PACKAGE}};
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Method;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class SeedRunner implements CommandLineRunner {
+
+    private final ApplicationContext context;
+
+    @Override
+    public void run(String... args) throws Exception {
+        String target = null;
+        for (String arg : args) {
+            if (arg.startsWith("--seed=")) {
+                target = arg.substring("--seed=".length());
+            }
+        }
+        if (target == null) return;
+
+        if ("all".equalsIgnoreCase(target)) {
+            for (String name : context.getBeanDefinitionNames()) {
+                Object bean = context.getBean(name);
+                try {
+                    Method seedMethod = bean.getClass().getMethod("seed");
+                    log.info("Running seeder: {}", bean.getClass().getSimpleName());
+                    seedMethod.invoke(bean);
+                } catch (NoSuchMethodException ignored) {
+                }
+            }
+        } else {
+            String beanName = Character.toLowerCase(target.charAt(0)) + target.substring(1);
+            Object bean = context.getBean(beanName);
+            Method seedMethod = bean.getClass().getMethod("seed");
+            log.info("Running seeder: {}", target);
+            seedMethod.invoke(bean);
+        }
+    }
+}

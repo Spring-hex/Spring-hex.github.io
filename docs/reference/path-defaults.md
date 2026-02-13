@@ -53,6 +53,8 @@ Default path patterns for hexagonal architecture components.
 | `response` | `infrastructure.{aggregate}.controller.dto` | `aggregate` | `com.app.infrastructure.order.controller.dto` |
 | `mediator` | `application.mediator` | (none) | `com.app.application.mediator` |
 | `config` | `infrastructure.config` | (none) | `com.app.infrastructure.config` |
+| `factory` | `infrastructure.factory.{aggregate}` | `aggregate` | `com.app.infrastructure.factory.order` |
+| `seeder` | `infrastructure.seeder` | (none) | `com.app.infrastructure.seeder` |
 
 ---
 

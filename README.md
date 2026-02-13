@@ -10,6 +10,7 @@ A command-line tool that generates [hexagonal architecture](https://alistair.coc
 - **Multiple Data Stores** — JPA, MongoDB, and Redis adapter generation
 - **Database Migrations** — Flyway and Liquibase support with auto-detection
 - **Simple CRUD** — Traditional MVC stack when hexagonal complexity isn't needed
+- **Data Seeding** — Factories with Datafaker and seeders for dev/test data
 - **Customizable** — Override any generated path via `.hex/config.yml`
 
 ## Requirements
@@ -111,6 +112,16 @@ src/main/java/com/example/
 | Command | Description |
 |---------|-------------|
 | `make:crud <name>` | Model, entity, repository, service, mapper, and controller |
+| `make:crud <name> --resources` | Same as above with full CRUD endpoints pre-built |
+
+### Data Seeding
+
+| Command | Description |
+|---------|-------------|
+| `make:factory <name> -a <aggregate>` | Data factory class with Datafaker |
+| `make:seeder <name> -a <aggregate> --entity <entity>` | Database seeder class |
+| `db:seed <SeederName>` | Run a specific seeder |
+| `db:seed --all` | Run all seeders |
 
 ### Database Migrations
 

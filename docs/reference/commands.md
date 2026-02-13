@@ -541,6 +541,138 @@ spring-hex make:response OrderSummary -a order
 
 ---
 
+## Data Seeding Commands
+
+### make:factory
+{: .d-inline-block }
+Data
+{: .label .label-green }
+
+Generate a data factory class using Datafaker for creating fake entity instances.
+
+**Usage:**
+```bash
+spring-hex make:factory <entityName> -a <aggregate> [options]
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `<entityName>` | Yes | Entity name (e.g., User, Product) |
+| `-a, --aggregate` | Yes | Aggregate name (e.g., order) |
+| `-p, --package` | No | Base package (auto-detected if not specified) |
+| `-o, --output` | No | Output directory (defaults to current directory) |
+
+**Example:**
+```bash
+spring-hex make:factory User -a user
+spring-hex make:factory OrderItem -a order
+```
+
+**Generated Files:**
+- Factory class with static `create()` and `create(int count)` methods
+- Uses [Datafaker](https://www.datafaker.net/) for realistic fake data
+
+**Usage in Code:**
+```java
+// Single entity
+User user = UserFactory.create();
+
+// Multiple entities
+List<User> users = UserFactory.create(50);
+
+// Nested factories for aggregate composition
+Order order = Order.builder()
+        .customer(CustomerFactory.create())
+        .items(OrderItemFactory.create(3))
+        .build();
+```
+
+**Note:** Add `net.datafaker:datafaker` to your project dependencies to use factories.
+
+---
+
+### make:seeder
+{: .d-inline-block }
+Data
+{: .label .label-green }
+
+Generate a database seeder class for populating development and test data.
+
+**Usage:**
+```bash
+spring-hex make:seeder <seederName> -a <aggregate> --entity <entityName> [options]
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `<seederName>` | Yes | Seeder name (e.g., UserSeeder — "Seeder" suffix auto-appended) |
+| `-a, --aggregate` | Yes | Aggregate name (e.g., user) |
+| `--entity` | Yes | Entity name for factory/repository imports (e.g., User) |
+| `-p, --package` | No | Base package (auto-detected if not specified) |
+| `-o, --output` | No | Output directory (defaults to current directory) |
+
+**Example:**
+```bash
+spring-hex make:seeder UserSeeder -a user --entity User
+spring-hex make:seeder ProductSeeder -a product --entity Product
+```
+
+**Generated Files:**
+- Seeder class with a `seed()` method (empty body for you to define)
+- `SeedRunner` infrastructure component (auto-generated once, on first seeder creation)
+
+**Usage in Code:**
+```java
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class UserSeeder {
+
+    private final UserRepository repository;
+
+    public void seed() {
+        // Define your seed data here
+        repository.saveAll(UserFactory.create(50));
+
+        // Or create specific entries
+        repository.save(UserFactory.create());
+    }
+}
+```
+
+---
+
+### db:seed
+{: .d-inline-block }
+Data
+{: .label .label-green }
+
+Run database seeders via the project's build tool.
+
+**Usage:**
+```bash
+spring-hex db:seed <seederName>
+spring-hex db:seed --all
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `<seederName>` | No | Seeder class name to run (e.g., UserSeeder) |
+| `--all` | No | Run all seeders |
+
+**Example:**
+```bash
+spring-hex db:seed UserSeeder
+spring-hex db:seed --all
+```
+
+**Behavior:**
+- Detects Maven or Gradle and runs the Spring Boot application with `--seed=<target>` argument
+- The auto-generated `SeedRunner` picks up the argument and invokes the matching seeder's `seed()` method
+- `--all` discovers and runs every bean that has a `seed()` method
+
+---
+
 ## CRUD Commands
 
 ### make:crud
@@ -560,12 +692,14 @@ spring-hex make:crud <entityName> [options]
 | `<entityName>` | Yes | Name of the entity (e.g., User, Product) |
 | `--no-model` | No | Skip generating the model/entity |
 | `--no-service` | No | Skip generating the service layer |
+| `--resources` | No | Generate CRUD endpoints and service methods ready for development |
 | `-p, --package` | No | Base package (auto-detected if not specified) |
 | `-o, --output` | No | Output directory (defaults to current directory) |
 
 **Example:**
 ```bash
 spring-hex make:crud Product
+spring-hex make:crud Product --resources
 spring-hex make:crud Category --no-model
 ```
 
