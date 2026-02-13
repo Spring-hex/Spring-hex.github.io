@@ -118,8 +118,8 @@ src/main/java/com/example/
 
 | Command | Description |
 |---------|-------------|
-| `make:factory <name> -a <aggregate>` | Data factory class with Datafaker |
-| `make:seeder <name> -a <aggregate> --entity <entity>` | Database seeder class |
+| `make:factory <name>` | Data factory class with Datafaker |
+| `make:seeder <name> --entity <entity>` | Database seeder class |
 | `db:seed <SeederName>` | Run a specific seeder |
 | `db:seed --all` | Run all seeders |
 

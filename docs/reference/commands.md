@@ -552,19 +552,19 @@ Generate a data factory class using Datafaker for creating fake entity instances
 
 **Usage:**
 ```bash
-spring-hex make:factory <entityName> -a <aggregate> [options]
+spring-hex make:factory <entityName> [options]
 ```
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `<entityName>` | Yes | Entity name (e.g., User, Product) |
-| `-a, --aggregate` | Yes | Aggregate name (e.g., order) |
+| `-a, --aggregate` | No | Aggregate name (defaults to entity name lowercase) |
 | `-p, --package` | No | Base package (auto-detected if not specified) |
 | `-o, --output` | No | Output directory (defaults to current directory) |
 
 **Example:**
 ```bash
-spring-hex make:factory User -a user
+spring-hex make:factory User
 spring-hex make:factory OrderItem -a order
 ```
 
@@ -600,21 +600,21 @@ Generate a database seeder class for populating development and test data.
 
 **Usage:**
 ```bash
-spring-hex make:seeder <seederName> -a <aggregate> --entity <entityName> [options]
+spring-hex make:seeder <seederName> --entity <entityName> [options]
 ```
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `<seederName>` | Yes | Seeder name (e.g., UserSeeder — "Seeder" suffix auto-appended) |
-| `-a, --aggregate` | Yes | Aggregate name (e.g., user) |
 | `--entity` | Yes | Entity name for factory/repository imports (e.g., User) |
+| `-a, --aggregate` | No | Aggregate name (defaults to entity name lowercase) |
 | `-p, --package` | No | Base package (auto-detected if not specified) |
 | `-o, --output` | No | Output directory (defaults to current directory) |
 
 **Example:**
 ```bash
-spring-hex make:seeder UserSeeder -a user --entity User
-spring-hex make:seeder ProductSeeder -a product --entity Product
+spring-hex make:seeder UserSeeder --entity User
+spring-hex make:seeder OrderItemSeeder --entity OrderItem -a order
 ```
 
 **Generated Files:**
