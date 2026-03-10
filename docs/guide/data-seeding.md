@@ -42,38 +42,36 @@ This creates a factory `@Component` with a repository injection. If the reposito
 ```java
 @Component
 @RequiredArgsConstructor
-public class UserEntityFactory {
+public class UserEntityFactory implements Factory<UserEntity> {
 
     private final UserEntityRepository repository;
     private static final Faker faker = new Faker();
 
+    @Override
+    public UserEntityRepository repository() {
+        return repository;
+    }
+
+    @Override
     public UserEntity make() {
         return UserEntity.builder()
                 .name(faker.name().fullName())
                 .email(faker.internet().emailAddress())
                 .build();
     }
-
-    public List<UserEntity> make(int count) { ... }
-
-    public UserEntity create() {
-        return repository.save(make());
-    }
-
-    public List<UserEntity> create(int count) {
-        return repository.saveAll(make(count));
-    }
 }
 ```
 
-### create() vs make()
+The `create()` and `count()` methods are inherited from the `Factory<T>` interface — no boilerplate needed.
 
-| Method | Behavior | Use Case |
-|:-------|:---------|:---------|
-| `create()` | Builds and **saves** to database | Seeders, integration tests |
-| `create(n)` | Builds and saves `n` entities | Bulk seeding |
-| `make()` | Builds in **memory only** | Unit tests, assertions |
-| `make(n)` | Builds `n` entities in memory | Batch unit tests |
+### Factory API
+
+| Expression | Behavior | Use Case |
+|:-----------|:---------|:---------|
+| `factory.create()` | Builds and **saves** one entity | Seeders, integration tests |
+| `factory.count(n).create()` | Builds and saves `n` entities | Bulk seeding |
+| `factory.make()` | Builds in **memory only** | Unit tests, assertions |
+| `factory.count(n).make()` | Builds `n` entities in memory | Batch unit tests |
 
 ### Nested Factories
 
@@ -82,21 +80,23 @@ For entities with relationships (e.g., BookEntity belongs to AuthorEntity), call
 ```java
 @Component
 @RequiredArgsConstructor
-public class BookEntityFactory {
+public class BookEntityFactory implements Factory<BookEntity> {
 
     private final BookEntityRepository repository;
     private final AuthorEntityFactory authorEntityFactory;
     private static final Faker faker = new Faker();
 
+    @Override
+    public BookEntityRepository repository() {
+        return repository;
+    }
+
+    @Override
     public BookEntity make() {
         return BookEntity.builder()
                 .title(faker.book().title())
                 .author(authorEntityFactory.create())  // persisted before Book
                 .build();
-    }
-
-    public BookEntity create() {
-        return repository.save(make());
     }
 }
 ```
@@ -148,7 +148,7 @@ public class UserSeeder implements Seeder {
     public void seed() {
         log.info("UserSeeder: seeding...");
 
-        factory.create(50);  // creates and saves 50 users
+        factory.count(50).create();  // creates and saves 50 users
 
         log.info("UserSeeder: done");
     }

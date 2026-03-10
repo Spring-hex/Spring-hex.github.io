@@ -569,7 +569,8 @@ spring-hex make:factory OrderItemEntity -a order
 ```
 
 **Generated Files:**
-- Factory `@Component` with `make()` (in-memory) and `create()` (persisted) methods
+- Factory `@Component` implementing `Factory<T>` interface with `make()` and `repository()`
+- `Factory<T>` interface (auto-generated once, on first factory creation)
 - JPA repository interface (auto-generated if one doesn't already exist)
 - Uses [Datafaker](https://www.datafaker.net/) for realistic fake data
 
@@ -579,12 +580,17 @@ spring-hex make:factory OrderItemEntity -a order
 @Autowired
 private UserEntityFactory userEntityFactory;
 
-// create() saves to database and returns the persisted entity
+// create() saves one entity to database and returns it
 UserEntity user = userEntityFactory.create();
-List<UserEntity> users = userEntityFactory.create(50);
+
+// count(n).create() saves n entities and returns a List
+List<UserEntity> users = userEntityFactory.count(50).create();
 
 // make() creates in memory only (useful for unit tests)
 UserEntity transient = userEntityFactory.make();
+
+// count(n).make() creates n entities in memory
+List<UserEntity> transients = userEntityFactory.count(10).make();
 
 // Nested factories: create() persists dependencies automatically
 // In BookEntityFactory.make():

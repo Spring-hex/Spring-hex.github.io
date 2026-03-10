@@ -16,11 +16,11 @@ public class {{SEEDER_NAME}} implements Seeder {
     public void seed() {
         log.info("{{SEEDER_NAME}}: seeding...");
 
-        // factory.create() saves to database
-        // factory.create(50);
+        // factory.create() saves one entity to database
+        // factory.count(50).create();
         //
         // factory.make() creates in memory only (useful for tests)
-        // factory.make();
+        // factory.count(50).make();
 
         log.info("{{SEEDER_NAME}}: done");
     }

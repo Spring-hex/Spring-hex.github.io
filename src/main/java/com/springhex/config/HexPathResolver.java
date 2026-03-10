@@ -25,6 +25,7 @@ public class HexPathResolver {
             Map.entry("domain-root", "domain"),
             Map.entry("service", "domain.{aggregate}.service"),
             Map.entry("factory", "infrastructure.factory.{aggregate}"),
+            Map.entry("factory-base", "infrastructure.factory"),
             Map.entry("seeder", "infrastructure.seeder")
     );
 

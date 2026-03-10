@@ -74,6 +74,7 @@ public class MakeFactoryCommand implements Callable<Integer> {
             String aggregateLower = (aggregate != null ? aggregate : stripEntitySuffix(capitalized)).toLowerCase();
 
             String factoryPackage = pathResolver.resolve("factory", aggregateLower);
+            String factoryBasePackage = pathResolver.resolveStatic("factory-base");
             String repositoryPackage = pathResolver.resolve("persistence", aggregateLower);
 
             Map<String, String> replacements = new HashMap<>();
@@ -82,6 +83,7 @@ public class MakeFactoryCommand implements Callable<Integer> {
             replacements.put("{{ENTITY_NAME}}", capitalized);
             replacements.put("{{AGGREGATE}}", aggregateLower);
             replacements.put("{{PACKAGE_REPOSITORY}}", repositoryPackage);
+            replacements.put("{{PACKAGE_FACTORY_BASE}}", factoryBasePackage);
             pathResolver.populatePackagePlaceholders(aggregateLower, replacements);
 
             // Generate factory class
@@ -89,6 +91,17 @@ public class MakeFactoryCommand implements Callable<Integer> {
             Path outputPath = packageResolver.resolveOutputPath(mixin.getOutputDir(), capitalized + "Factory", factoryPackage);
             fileGenerator.generate(outputPath, content);
             System.out.println("Created: " + outputPath);
+
+            // Auto-generate Factory interface if it doesn't exist
+            Path factoryInterfacePath = packageResolver.resolveOutputPath(mixin.getOutputDir(), "Factory", factoryBasePackage);
+            if (!Files.exists(factoryInterfacePath)) {
+                Map<String, String> interfaceReplacements = new HashMap<>();
+                interfaceReplacements.put("{{PACKAGE}}", factoryBasePackage);
+
+                String interfaceContent = stubProcessor.process("data/factory-interface", interfaceReplacements);
+                fileGenerator.generate(factoryInterfacePath, interfaceContent);
+                System.out.println("Created: " + factoryInterfacePath);
+            }
 
             // Auto-generate repository if it doesn't exist
             Path repoPath = packageResolver.resolveOutputPath(mixin.getOutputDir(), capitalized + "Repository", repositoryPackage);

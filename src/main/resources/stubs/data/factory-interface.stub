@@ -1,0 +1,31 @@
+package {{PACKAGE}};
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import java.util.stream.Stream;
+
+public interface Factory<T> {
+
+    T make();
+
+    JpaRepository<T, ?> repository();
+
+    default T create() {
+        return repository().save(make());
+    }
+
+    default FactoryCount<T> count(int n) {
+        return new FactoryCount<>(this, n);
+    }
+
+    record FactoryCount<T>(Factory<T> factory, int n) {
+
+        public List<T> make() {
+            return Stream.generate(factory::make).limit(n).toList();
+        }
+
+        public List<T> create() {
+            return factory.repository().saveAll(make());
+        }
+    }
+}
